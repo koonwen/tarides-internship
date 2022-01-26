@@ -35,5 +35,7 @@ Weekly logs of my internship progress
  - The issue with using the opam installed compiler was that the code it was producing was too large to be run on the NRF-board.
  - How to apply git patches
  - Checking md5sum
+ - `./configure` scripts are important to specify the build directory/compiler and other settings for the make file
+ - Sometimes `make` fails because some header files can't be found. Usually if header files are missing even though you have the package, try downloading the `<package name>-devel` package which should have the headers.
 - [ ] Building OCaml 4.10+lto comopiler with arm-none-eabi-gcc cross compiler (Host:x86-64 to Target:32bit Arm)
 - [ ] Interfacing OCaml programs with RIOT OS APIS
