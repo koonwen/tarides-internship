@@ -68,3 +68,4 @@ The "dune-project" file is responsible for the project configurations
 - "dune" files on the other hand should exist in every directory (except perhaps the top level directory). The two main configurations that are commonly used to define these directories are "executables" or "library". As the name states, this instructs dune to compile our OCaml code to build a runnable program in the case of "executable" declaration, or to build a library of reusable code which can be used across other libraries or executables as in the case of the declaration "library".
 - dune "library" configs are built to be reusable and accessible by the name of the library with dot notaion
 - dune "executables" are built as runnable code from the command line with `dune exec < program name >`
+- dune "rules" perform the same function as Makefile rules. We can use dune rules to specify some build instruction to run.

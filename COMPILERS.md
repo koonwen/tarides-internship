@@ -1,3 +1,7 @@
+# Compilation
+Tidbits about compilation process. .c -> gcc -c -> .o -> gcc -o -> exe
+- Both object files and executable files are machine code. However object files contain reference symbols that may or may not be defined. Executables don't have such dependencies
+
 # Ocaml's Compilers
 OCaml comes prepackaged with two compilers. They are runnable through the command-line with ocamlc (bytecode compiler) and ocamlopt (native code compiler).
 
