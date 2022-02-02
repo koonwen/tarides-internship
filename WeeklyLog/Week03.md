@@ -14,7 +14,7 @@
 ## Blockers
 - Could not figure out why the dependency resolution was not working for the RIOT_BUILD.h header file
 
-# 1/02 Tuesday
+# 01/02 Tuesday
 - Learn about how make rules are evaluated and C programs are built
 - Debug the build issue
 
@@ -23,3 +23,23 @@
 2. Renamed the path variable to locate the RIOT_BUILD.h dependency correctly
 
 ## Blockers
+- Lacking understanding in Makefile syntax and evaluation order
+
+# 02/02 Wednesday
+- Work through the build system rules
+- Figure out how to write RIOT API's to OCaml
+- Continue working on understanding how to embed OCaml in C code
+
+## Process
+1. Played around with `ocamlc` with different flags `-output-obj -output-complete-obj -custom`
+2. Working process is:
+```sh
+ocamlc -output-obj-o <output>.o input.ml [.cmx .cmi]
+ocamlc -o <executable> <object_files>.o -L`ocamlc -where` -lcamlrun -lm
+```
+3. For implementing stubs.c, we need to include some OCaml directives that will help us when translating OCaml types to and from C types
+4. We can streamline the build with dune using the `foreign_stubs (language c) (names ...)` fields
+
+## Blockers
+- Was initially unable to identify where the math header file was located for the runtime primitives. The file name is just `m`
+- Even after successful compilation, I was unable to see my prints, it was later realised that unlike in pure OCaml, we need to be a little more manual with our programs including flushing the stdout buffer.

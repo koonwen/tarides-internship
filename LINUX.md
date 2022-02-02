@@ -23,11 +23,16 @@ To see what is inside an object file
 - using the `-s` flag, we can get readelf to show us the symbols (names) in the file
 - We can notice that some symbol names of functions show up as "UND" which means that they are undefined. This is because we have declared their declaration and not its definition.
 
+## Bash
+Bash tricks
+- `$(command)` and `'command'` (backticks) pre-evaluate the bash command such as `pwd` for example
+
 # Git
 How to manage Git repos and have better Git workflows
 
-# **TODO**
+## **TODO**
 graph out types of useful workflows
 
-# Rebasing
+## Rebasing
 - Rebasing means that git will stack your commits on top of the previous commits in the remote and you will need to deconflict each of your own commits one by one before pushing to the main repo
+

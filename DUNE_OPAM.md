@@ -69,3 +69,12 @@ The "dune-project" file is responsible for the project configurations
 - dune "library" configs are built to be reusable and accessible by the name of the library with dot notaion
 - dune "executables" are built as runnable code from the command line with `dune exec < program name >`
 - dune "rules" perform the same function as Makefile rules. We can use dune rules to specify some build instruction to run.
+
+#### Dealing with Foreign Libraries
+- dune has built in capabilities for building OCaml code with foreign C libraries.
+- Inside the dune file, we specify the following in the foreign_stubs field:
+```dune
+(library/executable
+  (name ...)
+  (foreign_stubs (lanugae c) (names ... ...)))
+```

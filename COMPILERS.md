@@ -2,11 +2,40 @@
 Tidbits about compilation process. .c -> gcc -c -> .o -> gcc -o -> exe
 - Both object files and executable files are machine code. However object files contain reference symbols that may or may not be defined. Executables don't have such dependencies
 
+## Using GCC
+The main C compiler that we will use and invoke is `gcc` which also has the alias `cc`. Although it is convenient to compile small programs in one go, it is much easier and also better practice to undergo the compilation pipeline in steps.
+- `-o` flag tells the compiler to take all the sources and compile and assemble putting the result in an object file.
+- `-c` flag tells the compiler to produce the object file without linking. This means that the compiler will not complain about undefined names because it will be resolved later by the linker. We can provide multiple files which will create a `.o` file for each source file
+- We do not need to compile our source code with our headers, but the headers are primarily useful for making the `#include` directive cleaner
+- In C-compilation, it is extremely important to understand the linking process. The order in which you provide gcc the files to link, will generate a table of undefined symbols that get resolved when looking at the subsequent files and trying to find implementations. However, the linker does not "look backwards" at the files that have already been evaluated by the linker. Hence, files with unresolved symbols should never appear at the end of the linking commands. (There is however a flag to tell the linker how to process the files but that is complicated)
+- Sometimes the compiler will complain for missing symbols from your host library. This can mean one of two things. Either you have not installed the required headers which for linux could be in the `-devel` packages. Else the paths to your headers have been set incorrectly and you need to pass it as a flag with `-I/path/to/lib`.
+  - **Digression**: In our host system, our available c_libraries are basically just a mess of all the downloaded packages dumped into the usr/lib folder. Their correcponding header files are also added there.
+
+- Another way to specify the library location (that we used to link in the runtime library) is to use `-L'ocamlc -where'` (where ' ' is actually the back tick). We also need to pass `-l<name>` of the libraries we want to look for. In our case, we had to use `-lcamlrun` and `-lm` (math library)
+
+## Using Make
+Make is the build system we use in conjunction with dune.
+- invoking `make` without any targets always runs the first target which is usually the (default goal), you can overwrite this behaviour by using the special .DEFAULTGOAL variable
+
+- targets/rules that are not dependencies of any other targets, are only run when you specify the target. (e.g. "clean" is usually a target that is not a file that is a dependency).
+However, sometimes you have name clashes and in order to overcome that, we use the .PHONY=(name) tell make to recompile this target every time.
+
+- variables in Make are special, they can either be simple variables or recursively evaluated varibles. (:= or ::=) variables only get expanded once whereas (=) variables get expanded recursively. In Make the order in which we use variables do not follow the conventional evaluation scope that most programming languages feature. It works more akin to a recursive evaluation such as depth first.
+
+- Header files do not need to be provided to the compiler. They are technically somewhat of an interface file and will allow you to use functions without knowing their implementations. However, their symbols would need to be resolved at the linking phases where you provide the implementation object files. Therefore, the primary use of the header file is to "collect" all the neccessary functions that is used in your main program and provide the definition to the main.c file instead of #including all the implementation files.
+
 # Ocaml's Compilers
 OCaml comes prepackaged with two compilers. They are runnable through the command-line with ocamlc (bytecode compiler) and ocamlopt (native code compiler).
 
-### ocamlc
+## ocamlc
 The bytecode compiler
+ - An invokation of `ocamlc` with a program, creates a bytecode program which is linked with the system's shared runtime library and is evaluated with `ocamlrun` tool.
+ - Adding the `-custom` flag tells the compiler to append the runtime to the output file which means that the output file is much larger but does not require the bytecode interpreter to run the program.
+ - Adding the `-output-obj` or `-output-complete-obj` produces an object/C file which contains both the OCaml code that we wrote and want to run as well as the runtime which we will use to link with our C-stubs
+ - Part of the linking process requires us to use the `ocamlc ... -L'ocamlc -where' -lcamlrun -lm` at the end to provide in the runtime libaries
+
+## ocamlopt
+The native code compiler
 
 # The Runtime system
 OCaml's runtime is composed of three parts:
@@ -16,8 +45,18 @@ OCaml's runtime is composed of three parts:
 
 When OCaml programs are compiled, the compilation process includes linking in the OCaml runtime which includes the garbage collector as well as the representation of values. One interesting fact is that OCaml values reserve more bits than neccessary to represent the value. This is so that we can use the most significant bit to indicate some piece of information for the garbage collector.
 
-- The OCaml runtime is written entirely in C and can be found inside the compiler directory under the name of libasm.run (For bytecode) and libasm.opt (For native compilation)?
+- The OCaml runtime is written entirely in C and can be found inside the compiler directory under the name of libcaml.run (For bytecode) and libasm.run (For native compilation)?
 
 
 # Interfacing C with Ocaml
-- Using "cytpes" and "ctypes-foreign" package
+- Using "cytpes" and "ctypes-foreign" package (for popular c library functions)
+- To define our own c-stubs
+  - `external name : type = "caml_function_name"` in our .ml file. 'name' will be the name that we use in our OCaml code to call the c_stub
+  - In a separate .c file, we need to #include a couple of caml directives found in `$(ocamlc -where)`. These provide the definitions for translating the OCaml values to C values and back.
+  - For compilation, we first compile our c_stubs into and object file and then use ocamlc to compile the rest
+  ```sh
+    cc -c -I$(ocamlc -where) c_stubs.c
+    ocamlc -custom -o prog c_stubs.o -cclib
+  ```
+
+- The reason why it's called a stub, is that it it's purpose is more or less a wrapper over the C function such that we first convert OCaml values into C values before passing it to the C function. Subsequently when the function returns, we need to the C return values as OCaml values.
