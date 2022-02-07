@@ -59,3 +59,14 @@ which does not currently have RIOT's flags to compile correctly.
 ***Digression**: One initially peculiar thing to me was how we could successfully compile an OCaml printf. Wasn't the whole point of this project to fulfill the gap to provide OCaml code APIs to interact with RIOT OS? The reason for this oddity is because the `caml_functions` rely on newlibc packages' libc.a(static library). The library provides all the symbols that our runtime looks for during compilation. Furthermore, newlibc's symbols then rely on RIOT's system call library which is also fully provided because newlibc is designed for embedded devices
 and therefore has a somewhat minimal library.
 
+At the start of **Week 4** I refresh my understanding of the build pipeline:
+
+1. We first need to provide all the neccessary files for our OCaml code to be passed over to RIOT. These include:
+   - startup.c (entry point to initialize our OCaml code)
+   - runtime.c (The runtime of our code)
+   - stubs.c (C-stubs that will be used to implement our mirage interface)
+   - libcamlrun.a (The runtime library of our code)
+2. We use dune to generate a custom runtime library (libcamlrun.a) and the actual runtime itself (runtime.c).
+    - Regarding the custom runtime library, we need to configure the dune rules found in the ocaml repo so that it uses the Arm32 cross-compiler. For some reason, we need to use the RIOT requires the setup to be done in this way in order for the library to be link without error when RIOT takes over the build.
+3. Once all these are generated, our custom RIOT Makefile can take over the build and compile for different embedded targets by passing in `TARGET=board_name make`.
+
