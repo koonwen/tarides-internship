@@ -70,3 +70,4 @@ At the start of **Week 4** I refresh my understanding of the build pipeline:
     - Regarding the custom runtime library, we need to configure the dune rules found in the ocaml repo so that it uses the Arm32 cross-compiler. For some reason, we need to use the RIOT requires the setup to be done in this way in order for the library to be link without error when RIOT takes over the build.
 3. Once all these are generated, our custom RIOT Makefile can take over the build and compile for different embedded targets by passing in `TARGET=board_name make`.
 
+During the week, I made some progress with the C-stubs and managed to implement most of the primatives that I will need to construct the run and sleep function. It is now a matter of thinking about how to write the logic in OCaml to give back control to our program depending on the type of interrupting event. The two methods to consider are using the high level OCaml map data structure or a simple bit flags. 

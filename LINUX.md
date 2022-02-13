@@ -36,3 +36,12 @@ graph out types of useful workflows
 ## Rebasing
 - Rebasing means that git will stack your commits on top of the previous commits in the remote and you will need to deconflict each of your own commits one by one before pushing to the main repo
 
+# GDB
+C/C++ debugger
+
+### Useful commmands
+- **b** [file:linenum/function] (breakpoint)
+- **n** (next line in the same depth of code)
+- **s** (step into the code, more finegrained than next)
+- **list** (list the current section of executing code)
+- **ptype (struct-type)** (print the struture fields)
