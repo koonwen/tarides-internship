@@ -62,3 +62,9 @@ When OCaml programs are compiled, the compilation process includes linking in th
   ```
 
 - The reason why it's called a stub, is that it it's purpose is more or less a wrapper over the C function such that we first convert OCaml values into C values before passing it to the C function. Subsequently when the function returns, we need to the C return values as OCaml values.
+
+### OCaml values
+OCaml represents it's values differently from C. Namely, OCaml values are either unboxed integers or heap allocated integers.
+- One fact about these OCaml values, is that they reserve 1 bit to indicate whether the value is heap allocater or not.
+- That is the reason why when we interface with C, we need to convert these values into the corresponding integer type for the C function arguements.
+- Adding the CAMLParam macro before wrapping the C code is neccessary to prevent the GC from claiming our values as trash. (This has to do with the details of the garbage collector which I'm not too familiar with yet)

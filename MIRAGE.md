@@ -45,3 +45,15 @@ let first a b =
 Mirage is written with these LWT construct because we want to take advantage of asynchronous code even on a single core. Whereby threads yield to other threads that might need to wait for some event.
 
 - Mirage itself is run as a process under a Unix backend, we write code with LWT threads so that we can perform the task of the scheduler (at the process level) and yield for appropriate operations such as IO. This means that there are two levels of asynchrony. Within the process itself, our program has multiple threads that give way and switch between each other. On the level of multiple processes, the base operating system (Linux) performs context switching between the processes.
+
+### Execution model
+Potentially the most important/interesting thing to understand about Lwt is the execution model and how it manages to perform concurrency on one core.
+
+- The first thing to realise is that Lwt is (somewhat like) a framework that wraps our OCaml programs. It enables us to write concurrent OCaml programs by doing the heavy lifting of cleverly switching our independent "threads" (not to be confused with system threads) and using the system's underlying IO to give control back to the operating system with the condition of being woken up when an event occurs.
+- More specifically, our program is goverened by the "main" Lwt_main.run thread which is in charge of monitoring all of the promises in our prgram.
+  - The main thread likely cycles through each of the promises, during which,
+  - If a promise is ready to be resolved, the main thread installs the result and then calls it's callback (if available), passing control to the callback
+  - If a promise is pending, the main thread continues on to look at the next promise
+  - If all promises are pending, the main thread calls the underlying asynchronous operation to wait on events or until some timeout expires
+- This has the implication that if one of the threads does a large computation (or goes into an infinite loop), it blocks other threads from being executed. This means that it is on the programmer to incorporate Lwt.pause to ensure more even distribution of CPU time.
+- The benefit however, is that because our program is concurrent and not parallel, we don't have data races or require any form of mutual exclusion

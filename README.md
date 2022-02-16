@@ -39,6 +39,13 @@ Each week summarizes what I spent my time on. I have tagged them according to a 
 - [x] `Learning` the [Dune/RIOT build system](https://github.com/TheLortex/ocaml-riot-unix)
 - [ ] `Learning` the OCaml foreign function interface to extend RIOT APIs in OCaml
 
+# Week 4
+- [x] `Understanding` RIOT's timer and event API's
+- [ ] `Understanding` how event loop's work
+- [x] `Learning` Lwt
+- [x] `Implementing` C stubs for RIOT OS API's
+- [ ] `Implementing` the `run` and `sleep` functions
+
 # Dialogue
 The goal of the internship is to be able to create a process/system that allows us to take high-level OCaml code and be able to compile it down to run on resource constraint IOT devices.
 
