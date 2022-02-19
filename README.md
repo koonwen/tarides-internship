@@ -46,6 +46,13 @@ Each week summarizes what I spent my time on. I have tagged them according to a 
 - [x] `Implementing` C stubs for RIOT OS API's
 - [ ] `Implementing` the `run` and `sleep` functions
 
+# Week 5
+- [x] `Understanding` how event loop's work
+- [x] `Understanding` console events and UART
+- [x] `Implementing` the `run` and `sleep` functions
+- [x] `Implementing` event handlers for interrupts coming from UART
+
+
 # Dialogue
 The goal of the internship is to be able to create a process/system that allows us to take high-level OCaml code and be able to compile it down to run on resource constraint IOT devices.
 
@@ -78,3 +85,7 @@ At the start of **Week 4** I refresh my understanding of the build pipeline:
 3. Once all these are generated, our custom RIOT Makefile can take over the build and compile for different embedded targets by passing in `TARGET=board_name make`.
 
 During the week, I made some progress with the C-stubs and managed to implement most of the primatives that I will need to construct the run and sleep function. It is now a matter of thinking about how to write the logic in OCaml to give back control to our program depending on the type of interrupting event. The two methods to consider are using the high level OCaml map data structure or a simple bit flags. 
+
+**Week 5** went by and I have made some progress in understanding what we are providing in our Mirage interface and how it should work. The revelation came when I realised that the `run` function is supposed to add logic at the level of interacting with the operating system and other system process's. `run` acts as a wrapper over our Ocaml code written in the form of Lwt threads. It's main job is to structure how our OCaml program should behave (giving back control to the OS) when it is doing nothing but waiting for I/O events. It also defines what interrupting event's to react to. Here it is key to understand that unlike our conventional multi-user OS, we don't have a prememtive scheduler. Therefore we need to manually add in this logic.
+
+Regarding the implementation, I first began by creating a barebones `run` function that only does something if there is a timeout event (implemented with a `sleep` function). If the queue only has sleeping threads, then it will select the shortest timeout and return control to the OS, waking up when the timeout has expired. Afterwhich, the next task is to implement interrupting console event's. We do this via STDIO over UART. However, initially I found out that UART is not typically used in UNIX like systems but rather only in embedded devices. As a result, the API's to check for STDIO was incomplete for a native compilation. We looked into alternatives to work around this but at the end of the week, I discovered a useful tutorial forum about working with UART natively that would help us in the implementation.
