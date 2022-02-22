@@ -20,7 +20,6 @@
 4. Started to implement and debug the event_wait_timeout64() RIOT API stub.
 
 ## Blockers
-
 - The queue->event_list->next get's changed from the event to 0x1 during CAMLparam2 macro. Not sure why.
 - After talking to Lucas, the reason for this bug is that I was incorrectly allocated the address of the queue onto the stack and passing that value back to OCaml which expects it on the heap. 
 
