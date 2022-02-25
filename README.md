@@ -52,6 +52,12 @@ Each week summarizes what I spent my time on. I have tagged them according to a 
 - [x] `Implementing` the `run` and `sleep` functions
 - [x] `Implementing` event handlers for interrupts coming from UART
 
+# Week 6
+- [x] `Tinkering` with the UART Callbacks and `Understanding` Serial communication
+- [x] `Learning` about how Mirage devices make use of mirage-flow
+- [x] `Learning` 802.15.4 protocol and how it relates to 6lowpan and bluetooth
+- [x] `Implementing` the `read` function according to mirage-flow
+
 
 # Dialogue
 The goal of the internship is to be able to create a process/system that allows us to take high-level OCaml code and be able to compile it down to run on resource constraint IOT devices.
@@ -89,3 +95,17 @@ During the week, I made some progress with the C-stubs and managed to implement 
 **Week 5** went by and I have made some progress in understanding what we are providing in our Mirage interface and how it should work. The revelation came when I realised that the `run` function is supposed to add logic at the level of interacting with the operating system and other system process's. `run` acts as a wrapper over our Ocaml code written in the form of Lwt threads. It's main job is to structure how our OCaml program should behave (giving back control to the OS) when it is doing nothing but waiting for I/O events. It also defines what interrupting event's to react to. Here it is key to understand that unlike our conventional multi-user OS, we don't have a prememtive scheduler. Therefore we need to manually add in this logic.
 
 Regarding the implementation, I first began by creating a barebones `run` function that only does something if there is a timeout event (implemented with a `sleep` function). If the queue only has sleeping threads, then it will select the shortest timeout and return control to the OS, waking up when the timeout has expired. Afterwhich, the next task is to implement interrupting console event's. We do this via STDIO over UART. However, initially I found out that UART is not typically used in UNIX like systems but rather only in embedded devices. As a result, the API's to check for STDIO was incomplete for a native compilation. We looked into alternatives to work around this but at the end of the week, I discovered a useful tutorial forum about working with UART natively that would help us in the implementation.
+
+**Week 6** Marks the mid-way point of the internship and warrants a re-evaluation of progress made. So far, the work up to this point has been from the bottom-up by first hacking the RIOT build system such that it can take OCaml programs and build them for RIOT targets. This included 
+1. Configuring the toplevel Makefile to instruct dune to build the OCaml artifacts
+   - runtime.c (custom OCaml runtime in c)
+   - libacamlrun.a (custom 32bit OCaml runtime library) 
+   - stubs.c (primative API's that our OCaml programs reference)
+2. Providing a startup.c file that calls into our OCaml runtime/program.
+3. Passing the neccessary C and Linker flags for the RIOT build
+
+After the build system was set up, the next thing to do was understand how Mirage act's as a wrapper over OCaml programs. Mirage uses the Lwt framework to write concurrent logic in OCaml programs, however, these are only process level concurrency and we want to build in system level concurrency (e.g. if our program is waiting for an I/O event and no other thread in the program is ready for work, the OCaml process will block and no other system thread will be allowed to run). In essence, what we needed to implement, was an event loop wrapperframework over user OCaml code (the `run` function).
+
+Once that was accomplished, to bear the fruits of our labour, we needed to implement custom IO functions that work just like Lwt functions and return promises. As an exercise, the I implemented a sleep function (bearing the same interface as the Lwt_unix.sleep function) that put the process thread to sleep and if there was no pending work, give up control to the OS for the given timeout period. In this way, achieving concurrency at the system level. System level control begets the use of system calls and unlike in familiar Unix environments, a lot of digging through the RIOT documentation had to be done to uncover convenient API's that will allow us to program our event loop. Moreover, because it is more pleasant to program in OCaml than in C (API's language), a bulk of the work involved familiarizing how to translate (RIOT API's C functions) into OCaml callable functions. I would also gain more experience on this translation process by implementing I/O event's such as `read` over UART serial communication. Further work was done to design `read` to conform to the mirage-flow interface which is how the mirage tool can plug together devices with different underlying implementations as long as they conform to the same interface.
+
+The end of week 6 also marks the beginning work into networking and how to now adapt RIOT OS networking API's into OCaml so that users can write networked applications in OCaml!
