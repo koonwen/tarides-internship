@@ -47,3 +47,20 @@
 
 # 03/02 Thursday #
   * Find out how the auto init modules call start the networking stack
+  * Find out how to set up tun/tap virtual network interface infrastructure
+  
+## Process ##
+1. Manually tracked through RIOT code base to find out what each module declaration is doing
+2. Handpicked the neccessary modules we want to have in our network
+   stack: IEEE 802.15.4 [Physical/Data-link] -> 6loWPAN (translation layer) -> IPv6 [Network] -> ICMP/UDP [Transport] 
+3. Started researching about TUN/TAP and how to set up a virtual network
+
+## Blockers ##
+  * At the moment, the autoinit modules configure the Data-link layer
+    to ethernet which is the underlying protocol required by the
+    TUN/TAP interface and is neccessary for our testing. Am unclear
+    whether or not if we used hardware that uses IEEE802.15.4, the
+    autoinit will correctly configure
+  * It seems that the 6loWPAN translation layer is not being used. I
+    suspect this might be because the underlying protocol is ethernet
+    and not IEEE 802.15.4

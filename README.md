@@ -58,6 +58,10 @@ Each week summarizes what I spent my time on. I have tagged them according to a 
 - [x] `Learning` 802.15.4 protocol and how it relates to 6lowpan and bluetooth
 - [x] `Implementing` the `read` function according to mirage-flow
 
+# Week 7
+- [x] `Understanding` RIOT's networking API's
+- [x] `Learning` about the networking stack and our specific choice for the project
+- [x] `Learning` about RIOT's networking module system and layer to layer communication
 
 # Dialogue
 The goal of the internship is to be able to create a process/system that allows us to take high-level OCaml code and be able to compile it down to run on resource constraint IOT devices.
@@ -109,3 +113,14 @@ After the build system was set up, the next thing to do was understand how Mirag
 Once that was accomplished, to bear the fruits of our labour, we needed to implement custom IO functions that work just like Lwt functions and return promises. As an exercise, the I implemented a sleep function (bearing the same interface as the Lwt_unix.sleep function) that put the process thread to sleep and if there was no pending work, give up control to the OS for the given timeout period. In this way, achieving concurrency at the system level. System level control begets the use of system calls and unlike in familiar Unix environments, a lot of digging through the RIOT documentation had to be done to uncover convenient API's that will allow us to program our event loop. Moreover, because it is more pleasant to program in OCaml than in C (API's language), a bulk of the work involved familiarizing how to translate (RIOT API's C functions) into OCaml callable functions. I would also gain more experience on this translation process by implementing I/O event's such as `read` over UART serial communication. Further work was done to design `read` to conform to the mirage-flow interface which is how the mirage tool can plug together devices with different underlying implementations as long as they conform to the same interface.
 
 The end of week 6 also marks the beginning work into networking and how to now adapt RIOT OS networking API's into OCaml so that users can write networked applications in OCaml!
+
+**Week 7** was spent primarily on learning about the networking stack we want to use for the project. Since I did not have a strong understanding of networking, It took me most of the week to get a hang of things. In particular, our project aims to implement an IPv6 networking layer protocol which will allow us to use TCP transport protocol and later, a HTTP application protocol. However, things get a little more complicated because for low-resource embedded devices. The problem is that our embedded devices cannot handle the size of frames coming in from the data link layer (IEEE 802.15.4). Hence we need to provide a translation medium that will allow us to compress (for sending) and decompress (for recieving) network frames. This is done through 6loWPAN. For visual reference, our stack is as follows beginning from the lowest level:
+
+IEEE802.15.4 (Physical & Data Link layer) -> 6loWPAN (translation) -> IPv6 (Network layer) -> TCP (Transport layer) -> HTTP/HTTPS (Application layer)
+
+All that said, all we really need to do (as I later realised) is to find the correct RIOT API's for the network layer, implement the build rules and add them to the event loop. Since we are testing on Linux, we don't have much control on everything below the network layer. Good news is that between the layers, the interfaces are uniform, meaning that we can hack away at the upper layers without worrying about breaking the lower layers. When it finally comes time to test on the embedded devices, we can pretty much (hopefully) plug and play.
+
+**Week 8** is here and I am still highly confused by RIOT's networking
+system. The combination of outdated tutorials and the strange module inclusion system makes it extremely hard to find the macros and functions I need. I notice that I am spending way too long trying to pick out the modules I need after going through the documentation. Therefore I think it might be more productive to go through the header files to look for what I need instead of trying to rely on the documentation. As a way to clarify what I need to do, I will specify here that in our construction of the networking stack, we need to implement the following:
+
+Physical/Data Link (Build rules, use the default plug in modules) -> IPv6 (Adpat RIOT's API's into the function signatures of mirage-tcpip (ip.mli) interface.
