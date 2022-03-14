@@ -64,7 +64,7 @@
     the scheduling), or work on one monolith that switches the way it
     handles the packet, depending on header info.
 
-# 04/10 Friday #
+# 03/11 Friday #
   * Experiment with proposed architecture
 	1. init_gnrc_netdev thread
 	2. init_ipv6_gnrc thread

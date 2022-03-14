@@ -63,6 +63,12 @@ Each week summarizes what I spent my time on. I have tagged them according to a 
 - [x] `Learning` about the networking stack and our specific choice for the project
 - [x] `Learning` about RIOT's networking module system and layer to layer communication
 
+# Week 8
+- [x] `Learning` and experimenting with the "ipv6 socket" vs the "netapi" method of interacting with the RIOT's network stack
+- [x] `Learning` how to use wireshark
+- [x] `Learning` what happens to datagrams going up and down the stack
+- [ ] `Implementing` IPv6 layer itself by adapting the existing gnrc ipv6 thread
+
 # Dialogue
 The goal of the internship is to be able to create a process/system that allows us to take high-level OCaml code and be able to compile it down to run on resource constraint IOT devices.
 
