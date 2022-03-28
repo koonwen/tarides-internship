@@ -74,6 +74,11 @@ Each week summarizes what I spent my time on. I have tagged them according to a 
 - [x] `Learning` about the difference between TCP/UDP socket vs the raw socket
 - [X] `Implementing` the interface figuring out how to make the networking information available in OCaml and the Lwt event loop.
 
+# Week 10
+- [x] `Implementing` the RIOT GNRC stack instead of the sock api because it is easier to extract the IP information
+- [x] `Implementing` the C stubs to pass packet information from RIOT into OCaml
+- [x] `Implementing` the helper functions and Cstructs to decode the `gnrc_packet_snip` stucture passed to the OCaml runtime.
+
 # Dialogue
 The goal of the internship is to be able to create a process/system that allows us to take high-level OCaml code and be able to compile it down to run on resource constraint IOT devices.
 
@@ -139,4 +144,4 @@ This week, (**Week 9**) I finally have a grip over how the module inclusion syst
 
 the result of discussions with Lucas has helped me to conclude that RIOT has put us in an awkward situation where building on top the gnrc ipv6 thread would have been the most natural but we have no API's for interacting with that layer. Alternatively, the raw socket API level gives us much less control over how we want to manipulate the packets. In any case, in the interest of not having to reimplement the IP layer as neccessary if we replace the ipv6 thread, we have chosen the raw IP sock route. Towards the end of the week, as I began to start trying to write C-bindings, we encountered a strange race condition occuring in our build system. Because of the inclusion of the networking modules, the OCaml startup was running into inconsistent floating point bugs. Turns out htat the fix for this was to slow the execution by putting in a sleep before CAMLstartup which had the desired effect of stubbing this strange bug, yay!
 
-
+"Take 1 step back to take 2 steps forward". This is what happened in (**Week 10**). Although we had 'settled on' using the sock API, I found it quite unweildy and hard to handle in terms of the remote vs local endpoints it defined. Also, having less threads in our system might make sense in the future when we run on constrained memory environments.Therefore, taking a second look into the GNRC stack, I noticed that we could add our own transport protocol threads on top of the ipv6 thread just to recieve the data and pass it into our OCaml runtime. In addition, there were a bunch of warnings that said that this API could potentially be changed which deterred me from using it. In any case, the usage of GNRC was successful, I managed to recieve data into our threads and translate them into OCaml Cstructs. Internally, to be able to pass the information into the OCaml runtime, I set up an a packet queue to hold the data ephemerally and notify that an event occured by adding it to the event queue. Right now I am working solely on getting TCP up and running becuase we want to see if we can prove that we can get a http server up and running on our embedded devices. The following week will be tasked to complete the interface now that we have some of the major design choices settled.
